@@ -9,12 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^1.6.4",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@hookform/error-message": "^2.0.0",
+    "@supabase/supabase-js": "^1.15.1",
+    "csvtojson": "^2.0.10",
+    "dotenv": "^10.0.0",
+    "framer-motion": "^4",
     "next": "11.0.0",
+    "prop-types": "^15.7.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-hook-form": "^7.8.8"
   },
   "devDependencies": {
-    "eslint": "7.28.0",
-    "eslint-config-next": "11.0.0"
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.28.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-next": "11.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-react": "^7.24.0",
+    "prettier": "^2.3.1"
   }
 }
