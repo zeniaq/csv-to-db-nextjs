@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Flex, Stack, Box, Button } from "@chakra-ui/react";
+import { Flex, Stack, Box, Button, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import registryData from "./formData";
 import HookForms from "./HookForms";
@@ -7,7 +7,8 @@ import { createUser } from "../../utils/supabaseClient";
 import toJson from "../csv/toJson";
 import toDB from "../csv/toDB";
 
-const Formulario = () => {
+const Formulario = ({ onOpen, setWrongData }) => {
+	const toast = useToast();
 	const {
 		handleSubmit,
 		register,
@@ -20,7 +21,7 @@ const Formulario = () => {
 	const onSubmit = handleSubmit(async (hookFormData) => {
 		if (hookFormData) {
 			// toJson(hookFormData, setJsonCsv);
-			toDB(hookFormData, setJsonCsv);
+			toDB(hookFormData, setJsonCsv, onOpen, setWrongData, toast);
 			// createUser(hookFormData)
 			// 	.then((data) => {
 			// 		if (!data.error) {

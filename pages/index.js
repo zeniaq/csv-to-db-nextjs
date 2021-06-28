@@ -1,10 +1,13 @@
-import { Box } from "@chakra-ui/react";
+import { Box, useDisclosure } from "@chakra-ui/react";
 import { useState } from "react";
 import { readUser } from "../utils/supabaseClient";
 import Formulario from "../components/Form/Formulario";
 import toCsv from "../components/csv/toCsv";
+import Modal from "../components/Modal";
 
 export default function Home() {
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [wrongData, setWrongData] = useState();
 	const [result, setResult] = useState(null);
 	const onSubmit = () => {
 		readUser("hola")
@@ -28,7 +31,8 @@ export default function Home() {
 				Click
 			</button>{" "}
 			Hola {result && JSON.stringify(result)}
-			<Formulario />
+			<Formulario onOpen={onOpen} setWrongData={setWrongData} />
+			<Modal isOpen={isOpen} onClose={onClose} wrongData={wrongData} />
 		</Box>
 	);
 }
