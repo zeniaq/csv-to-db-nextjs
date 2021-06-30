@@ -1,7 +1,7 @@
-/* eslint-disable no-console */
-/* eslint-disable no-undef */
-const toCsv = (items) => {
-	const fileTitle = "users";
+import { readUser } from "../../utils/supabaseClient";
+
+export const saveCsv = (items, nameFile) => {
+	const fileTitle = nameFile;
 	const replacer = (key, value) => (value === null ? "" : value);
 	const header = Object.keys(items[0]);
 	const csv = [
@@ -30,6 +30,23 @@ const toCsv = (items) => {
 	}
 
 	console.log(csv);
+};
+
+const toCsv = (setResult) => {
+	readUser("hola")
+		.then((data) => {
+			if (!data.error) {
+				setResult(data.data);
+				console.log("Todo ok");
+				console.log(JSON.stringify(data.data));
+				saveCsv(data.data, "users");
+			} else {
+				console.log("Error");
+			}
+		})
+		.catch((error) => {
+			console.log(`Error en ${error}`);
+		});
 };
 
 export default toCsv;

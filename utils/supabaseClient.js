@@ -7,7 +7,7 @@ export const readUser = async () => {
 		[process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY],
 	);
 
-	return await supabase.from("users").select("*");
+	return await supabase.from("users").select("*").order("id", true);
 	// return await supabase.from("users").select("*").eq("id", `${user}`);
 };
 

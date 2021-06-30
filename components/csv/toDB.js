@@ -1,19 +1,9 @@
 /* eslint-disable no-return-await */
-import { useToast } from "@chakra-ui/react";
 import { updateUser, readUser } from "../../utils/supabaseClient";
 import toJson from "./toJson";
+import Toast from "../Toast/Toast";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve(), ms));
-
-const Toast = (toast, counts, action) =>
-	toast({
-		title: "Estado de la actualización",
-		description: `Datos totales actualizados: ${counts[0]}	||	Datos con incongruencias: ${counts[1]}`,
-		status: "info",
-		duration: 5000,
-		isClosable: true,
-		onCloseComplete: () => action(),
-	});
 
 const allDataDB = () =>
 	new Promise((resolve) => {
@@ -45,58 +35,108 @@ const dataComparison = (obj1, obj2) => {
 };
 
 const updateRegistry = (fromCsv, onOpen, setWrongData, toast) => {
-	const wrongData = [];
 	let countDataSuccess = 0;
 	let countDataWrong = 0;
+	let countGeneral = 0;
+	const statusOK = ["prospecto", "aspirante", "inscrito"];
+	const wrongData = [];
 	allDataDB()
 		.then(async (fromDB) => {
-			fromDB.map(async (item, index) => {
-				if (!dataComparison(item, fromCsv[index])) {
-					if (item.id !== parseInt(fromCsv[index].id, 10)) {
-						const noMatchObj = {
-							idDB: item.id,
-							firstNameDB: item.firstName,
-							idCsv: Number.isNaN(parseInt(fromCsv[index].id, 10))
+			const actionRegistry = () =>
+				new Promise((resolve) => {
+					fromDB.map((item, index) => {
+						if (!dataComparison(item, fromCsv[index])) {
+							const idCsv = Number.isNaN(parseInt(fromCsv[index].id, 10))
 								? ""
-								: parseInt(fromCsv[index].id, 10),
-							firstNameCsv: fromCsv[index].firstName,
-						};
-						wrongData.push(noMatchObj);
-						countDataWrong++;
-						return console.log(`El ID no coincide: ${JSON.stringify(noMatchObj)}`);
-					}
+								: parseInt(fromCsv[index].id, 10);
+							const phoneCsv = Number.isNaN(parseInt(fromCsv[index].phone, 10))
+								? ""
+								: parseInt(fromCsv[index].phone, 10);
+							const statusCsv = fromCsv[index].status;
 
-					console.log(
-						`El elemento de la DB: \n${JSON.stringify(
-							item,
-						)}\n Se reemplazará por: \n${JSON.stringify(fromCsv[index])}`,
-					);
-					updateUser(fromCsv[index])
-						.then(async (result) => {
-							if (!result.error) {
-								console.log(
-									`Se actualizó el registro: ${JSON.stringify(result.data)}`,
+							const pushArrayNoMatchData = (error) => {
+								const noMatchObj = {
+									error,
+									idDB: item.id,
+									firstNameDB: item.firstName,
+									idCsv,
+									firstNameCsv: fromCsv[index].firstName,
+									lastNameCsv: fromCsv[index].lastName,
+									phoneCsv,
+									emailCsv: fromCsv[index].email,
+									statusCsv,
+								};
+								return noMatchObj;
+							};
+							if (item.id !== parseInt(fromCsv[index].id, 10)) {
+								wrongData.push(pushArrayNoMatchData("ID"));
+								countDataWrong += 1;
+								countGeneral += 1;
+								return console.log(
+									`El ID no coincide: ${JSON.stringify(
+										pushArrayNoMatchData("ID"),
+									)}`,
 								);
-								countDataSuccess++;
-								return await sleep(500);
 							}
-							return console.log(
-								`Error en la operación de actualización: ${JSON.stringify(
-									result.error,
-								)}`,
+
+							if (!statusOK.includes(statusCsv.toString().toLowerCase())) {
+								wrongData.push(pushArrayNoMatchData("STATUS"));
+								countDataWrong += 1;
+								countGeneral += 1;
+								return console.log(
+									`El STATUS no coincide: ${JSON.stringify(
+										pushArrayNoMatchData("STATUS"),
+									)}`,
+								);
+							}
+
+							console.log(
+								`El elemento de la DB: \n${JSON.stringify(
+									item,
+								)}\n Se reemplazará por: \n${JSON.stringify(fromCsv[index])}`,
 							);
-						})
-						.catch((error) => {
-							console.log(`Error al conectar a la base de datos.\n${error}`);
-						});
-				}
-				return null;
-			});
-			setWrongData(wrongData);
-			const counts = [countDataSuccess, countDataWrong];
-			await sleep(100);
-			Toast(toast, counts, onOpen);
-			console.log(`Todas las incongruencias: ${JSON.stringify(wrongData)}`);
+							countGeneral += 1;
+
+							updateUser(fromCsv[index])
+								.then((result) => {
+									if (!result.error) {
+										countDataSuccess += 1;
+										console.log(
+											`Se actualizó el registro: ${JSON.stringify(
+												result.data,
+											)} -- countsuccess: ${countDataSuccess}`,
+										);
+										Toast(toast, countDataSuccess, onOpen, "success");
+										return sleep(200);
+									}
+									return console.log(
+										`Error en la operación de actualización: ${JSON.stringify(
+											result.error,
+										)}`,
+									);
+								})
+								.catch((error) => {
+									console.log(`Error al conectar a la base de datos.\n${error}`);
+								});
+						}
+						console.log(`Saliendo${countDataSuccess}`);
+						return null;
+					});
+					return setTimeout(resolve("Saliendo del map"), 500);
+				});
+
+			return await actionRegistry()
+				.then(async () => {
+					setWrongData(wrongData);
+					console.log(`succ${countDataSuccess} wrong_${countDataWrong}`);
+					await sleep(500);
+					console.log(`Todas las incongruencias: ${JSON.stringify(wrongData)}`);
+					if (countDataWrong === 0 && countGeneral === 0) {
+						return Toast(toast, 0, onOpen, "nothing");
+					}
+					return Toast(toast, countDataWrong, onOpen, countDataWrong > 0 && "errors");
+				})
+				.catch((error) => console.log(`Ocurrio algún error: ${error}`));
 		})
 		.catch((e) => console.log(`Error en: ${e}`));
 };

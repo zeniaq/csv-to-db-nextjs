@@ -10,6 +10,7 @@ import {
 	Center,
 	Flex,
 	Box,
+	Select,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 
@@ -69,7 +70,6 @@ const typeInput = (formObj, register, errors, watch) => {
 					_placeholder={{ color: "#393939" }}
 					color="#393939"
 					paddingLeft="20px"
-					textTransform="uppercase"
 					type={formObj.type}
 					name={formObj.name}
 					id={formObj.name}
@@ -97,7 +97,6 @@ const typeInput = (formObj, register, errors, watch) => {
 					_placeholder={{ color: "#393939", textTransform: "uppercase" }}
 					color="#393939"
 					paddingLeft="20px"
-					textTransform="uppercase"
 					type="date"
 					id="date"
 					name={formObj.name}
@@ -121,7 +120,6 @@ const typeInput = (formObj, register, errors, watch) => {
 					_placeholder={{ color: "#393939", textTransform: "uppercase" }}
 					color="#393939"
 					paddingLeft="20px"
-					textTransform={formObj.type === "email" ? false : "uppercase"}
 					type={formObj.type}
 					name={formObj.name}
 					id={formObj.name}
@@ -137,7 +135,7 @@ const typeInput = (formObj, register, errors, watch) => {
 			</InputIcon>
 		);
 	}
-	if (formObj.name === "files") {
+	if (formObj.type === "file") {
 		return (
 			<InputIcon formObj={formObj} errors={errors}>
 				<Input
@@ -154,6 +152,37 @@ const typeInput = (formObj, register, errors, watch) => {
 			</InputIcon>
 		);
 	}
+	if (formObj.type === "select") {
+		return (
+			<InputIcon formObj={formObj} errors={errors}>
+				<Select
+					rootProps
+					h="70px"
+					w="100%"
+					rounded="10px"
+					background="#fff"
+					_placeholder={{ color: "#393939", textTransform: "uppercase" }}
+					color="#393939"
+					type={formObj.type}
+					name={formObj.name}
+					id={formObj.name}
+					key={formObj.name}
+					placeholder="Seleccionar una opción"
+					size="sm"
+					{...register(formObj.name, {
+						required: `⚠ ${formObj.label} es requerido`,
+					})}
+				>
+					{formObj &&
+						formObj.options.map((item) => (
+							<option key={item} value={item}>
+								{item}
+							</option>
+						))}
+				</Select>
+			</InputIcon>
+		);
+	}
 	return (
 		<InputIcon formObj={formObj} errors={errors}>
 			<Input
@@ -163,7 +192,6 @@ const typeInput = (formObj, register, errors, watch) => {
 				_placeholder={{ color: "#393939", textTransform: "uppercase" }}
 				color="#393939"
 				paddingLeft="20px"
-				textTransform={formObj.type === "email" ? false : "uppercase"}
 				type={formObj.type}
 				name={formObj.name}
 				id={formObj.name}
