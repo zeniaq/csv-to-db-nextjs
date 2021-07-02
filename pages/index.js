@@ -3,7 +3,6 @@ import { useState } from "react";
 import Formulario from "../components/Form/Formulario";
 import toCsv from "../components/csv/toCsv";
 import Modal from "../components/Modal";
-import { inputForm, selectCsv } from "../components/Form/formData";
 
 export default function Home() {
 	const [viewForm, setViewForm] = useState(false);
@@ -11,27 +10,43 @@ export default function Home() {
 	const [wrongData, setWrongData] = useState();
 	const [result, setResult] = useState(null);
 
+	const arr = ["hola", "adios", "(hola)", "(adios"];
+	const prueba = (texto) => {
+		if (arr.includes(texto)) {
+			return console.log(`Si existe ${texto}`);
+		}
+		return console.log(`No existe ${texto}`);
+	};
+
 	return (
 		<Box w="100%" h="auto" align="center" justify="center">
 			<Stack w="90%" align="center" justify="center">
-				<Button
-					colorScheme="teal"
-					w="200px"
-					type="button"
-					onClick={() => setViewForm(false)}
-				>
+				<Button colorScheme="teal" w="240px" type="button" onClick={() => prueba("(hola)")}>
 					Insertar datos
 				</Button>
 				<Button
 					colorScheme="teal"
 					type="button"
-					w="200px"
+					w="240px"
 					onClick={() => setViewForm(true)}
 				>
 					Importar CSV
 				</Button>
-				<Button w="200px" colorScheme="teal" type="button" onClick={() => toCsv(setResult)}>
+				<Button
+					w="240px"
+					colorScheme="teal"
+					type="button"
+					onClick={() => toCsv(setResult, "full")}
+				>
 					Exportar todo en CSV
+				</Button>
+				<Button
+					w="240px"
+					colorScheme="teal"
+					type="button"
+					onClick={() => toCsv(setResult, "header")}
+				>
+					Exportar la plantilla en CSV
 				</Button>
 			</Stack>
 			{/* Hola {result && JSON.stringify(result)} */}

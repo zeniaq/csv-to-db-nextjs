@@ -61,7 +61,7 @@ const VerticallyCenter = ({ isOpen, onClose, wrongData }) => (
 				<ModalHeader>Datos incongruentes</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
-					<Button onClick={() => saveCsv(wrongData, "errorsLog")}>
+					<Button onClick={() => saveCsv(wrongData, "errorsLog", "full")}>
 						Descargar log en CSV
 					</Button>
 					<Box maxW="100%" overflowX="scroll">

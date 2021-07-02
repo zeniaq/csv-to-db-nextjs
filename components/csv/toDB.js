@@ -21,6 +21,7 @@ const allDataDB = () =>
 
 const dataComparison = (obj1, obj2) => {
 	const objs = [obj1];
+	const statusOK = ["prospecto", "aspirante", "inscrito"];
 	const objComparison = objs.filter(
 		(obj) =>
 			obj.id === parseInt(obj2.id, 10) &&
@@ -28,7 +29,8 @@ const dataComparison = (obj1, obj2) => {
 			obj.lastName === obj2.lastName &&
 			obj.email === obj2.email &&
 			obj.phone === parseInt(obj2.phone, 10) &&
-			obj.status === obj2.status,
+			obj.status === obj2.status &&
+			statusOK.includes(obj2.status.toLowerCase()),
 	);
 
 	return objComparison.length > 0;

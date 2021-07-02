@@ -1,5 +1,7 @@
 /* eslint-disable no-undef */
 const toJson = (hookFormData, setJsonCsv) => {
+	const regex = / *\([^)]*\) */g;
+	const replaceRequired = (obj) => obj.replace(regex, "");
 	if (hookFormData) {
 		if (window.File && window.FileReader) {
 			return new Promise((resolve) => {
@@ -7,7 +9,7 @@ const toJson = (hookFormData, setJsonCsv) => {
 				reader.onload = (() => (e) => {
 					// eslint-disable-next-line global-require
 					const csv = require("csvtojson");
-					const csvStr = e.target.result;
+					const csvStr = replaceRequired(e.target.result);
 					(async () => {
 						const jsonObj = await csv().fromString(csvStr);
 						setJsonCsv(jsonObj);
