@@ -1,4 +1,4 @@
-/* eslint-disable no-return-await */
+/* eslint-disable no-console */
 import { updateUser, readUser } from "../../utils/supabaseClient";
 import toJson from "./toJson";
 import Toast from "../Toast/Toast";
@@ -12,7 +12,7 @@ const allDataDB = () =>
 				if (!data.error) {
 					return setTimeout(resolve(data.data), 500);
 				}
-				return console.log("Error al guardar los registros");
+				return console.log(`Error al guardar los registros: ${JSON.stringify(data.error)}`);
 			})
 			.catch((error) => {
 				console.log(`Error al consultar: ${error}`);
@@ -56,6 +56,13 @@ const updateRegistry = (fromCsv, onOpen, setWrongData, toast) => {
 								: parseInt(fromCsv[index].phone, 10);
 							const statusCsv = fromCsv[index].status;
 
+							const forComparison = [
+								fromCsv[index].firstName,
+								fromCsv[index].lastName,
+								fromCsv[index].email,
+								phoneCsv,
+							];
+
 							const pushArrayNoMatchData = (error) => {
 								const noMatchObj = {
 									error,
@@ -71,43 +78,29 @@ const updateRegistry = (fromCsv, onOpen, setWrongData, toast) => {
 								return noMatchObj;
 							};
 							if (item.id !== parseInt(fromCsv[index].id, 10)) {
-								wrongData.push(pushArrayNoMatchData("ID"));
 								countDataWrong += 1;
 								countGeneral += 1;
-								return console.log(
-									`El ID no coincide: ${JSON.stringify(
-										pushArrayNoMatchData("ID"),
-									)}`,
-								);
+								return wrongData.push(pushArrayNoMatchData("ID"));
+							}
+
+							if (forComparison.includes("")) {
+								countDataWrong += 1;
+								countGeneral += 1;
+								return wrongData.push(pushArrayNoMatchData("FALTAN DATOS"));
 							}
 
 							if (!statusOK.includes(statusCsv.toString().toLowerCase())) {
-								wrongData.push(pushArrayNoMatchData("STATUS"));
 								countDataWrong += 1;
 								countGeneral += 1;
-								return console.log(
-									`El STATUS no coincide: ${JSON.stringify(
-										pushArrayNoMatchData("STATUS"),
-									)}`,
-								);
+								return wrongData.push(pushArrayNoMatchData("STATUS"));
 							}
 
-							console.log(
-								`El elemento de la DB: \n${JSON.stringify(
-									item,
-								)}\n Se reemplazará por: \n${JSON.stringify(fromCsv[index])}`,
-							);
 							countGeneral += 1;
 
 							updateUser(fromCsv[index])
 								.then((result) => {
 									if (!result.error) {
 										countDataSuccess += 1;
-										console.log(
-											`Se actualizó el registro: ${JSON.stringify(
-												result.data,
-											)} -- countsuccess: ${countDataSuccess}`,
-										);
 										Toast(toast, countDataSuccess, onOpen, "success");
 										return sleep(200);
 									}
@@ -121,18 +114,16 @@ const updateRegistry = (fromCsv, onOpen, setWrongData, toast) => {
 									console.log(`Error al conectar a la base de datos.\n${error}`);
 								});
 						}
-						console.log(`Saliendo${countDataSuccess}`);
 						return null;
 					});
 					return setTimeout(resolve("Saliendo del map"), 500);
 				});
 
+			// eslint-disable-next-line no-return-await
 			return await actionRegistry()
 				.then(async () => {
 					setWrongData(wrongData);
-					console.log(`succ${countDataSuccess} wrong_${countDataWrong}`);
 					await sleep(500);
-					console.log(`Todas las incongruencias: ${JSON.stringify(wrongData)}`);
 					if (countDataWrong === 0 && countGeneral === 0) {
 						return Toast(toast, 0, onOpen, "nothing");
 					}
@@ -143,10 +134,9 @@ const updateRegistry = (fromCsv, onOpen, setWrongData, toast) => {
 		.catch((e) => console.log(`Error en: ${e}`));
 };
 
-const toDB = (hookFormData, setJsonCsv, onOpen, setWrongData, toast) => {
-	toJson(hookFormData, setJsonCsv)
+const toDB = (hookFormData, onOpen, setWrongData, toast) => {
+	toJson(hookFormData)
 		.then((fromCsv) => {
-			// console.log(`fromCsv: ${JSON.stringify(fromCsv)}`);
 			updateRegistry(fromCsv, onOpen, setWrongData, toast);
 		})
 		.catch((e) => console.log(`error en toDB: ${JSON.stringify(e)}`));

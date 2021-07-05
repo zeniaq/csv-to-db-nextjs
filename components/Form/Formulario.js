@@ -1,10 +1,13 @@
+/* eslint-disable no-console */
 import { useForm } from "react-hook-form";
 import { Flex, Stack, Button, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { inputForm, selectCsv } from "./formData";
 import HookForms from "./HookForms";
 import { createUser } from "../../utils/supabaseClient";
 import toDB from "../csv/toDB";
+import Toast from "../Toast/Toast";
 
 const Formulario = ({ onOpen, setWrongData, viewForm }) => {
 	const toast = useToast();
@@ -16,18 +19,16 @@ const Formulario = ({ onOpen, setWrongData, viewForm }) => {
 		formState: { errors },
 		reset,
 	} = useForm();
-	const [jsonCsv, setJsonCsv] = useState(null);
 
 	const onSubmit = handleSubmit(async (hookFormData) => {
 		if (hookFormData) {
 			if (viewForm) {
-				return toDB(hookFormData, setJsonCsv, onOpen, setWrongData, toast);
+				return toDB(hookFormData, onOpen, setWrongData, toast);
 			}
 			return createUser(hookFormData)
 				.then((data) => {
 					if (!data.error) {
-						console.log("Operación exitosa");
-						console.log(`Datos: ${JSON.stringify(data)}`);
+						Toast(toast, null, null, "insert");
 						reset();
 					} else {
 						console.log(`Error al insertar datos: ${JSON.stringify(data.error)}`);
@@ -75,22 +76,26 @@ const Formulario = ({ onOpen, setWrongData, viewForm }) => {
 						w="130px"
 						variant="solid"
 						colorScheme="red"
-						onClick={() => {
-							reset();
-							setJsonCsv(null);
-						}}
+						onClick={() => reset()}
 					>
 						Borrar todo
 					</Button>
 				</Stack>
-				{/* {jsonCsv && (
-					<Box w="100%" bg="red.100">
-						{JSON.stringify(jsonCsv)}
-					</Box>
-				)} */}
 			</Flex>
 		</form>
 	);
+};
+
+Formulario.propTypes = {
+	onOpen: PropTypes.func,
+	setWrongData: PropTypes.func,
+	viewForm: PropTypes.bool,
+};
+
+Formulario.defaultProps = {
+	onOpen: null,
+	setWrongData: null,
+	viewForm: false,
 };
 
 export default Formulario;

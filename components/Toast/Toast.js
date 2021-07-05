@@ -39,6 +39,15 @@ const Toast = (toast, counts, action, type) => {
 			isClosable: true,
 		});
 	}
+	if (type === "insert") {
+		return toast({
+			title: "Registro guardado!",
+			description: "El registro se guardó exitosamente",
+			status: "success",
+			duration: 5000,
+			isClosable: true,
+		});
+	}
 	return null;
 };
 

@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-console */
 import { readUser } from "../../utils/supabaseClient";
 import { inputForm } from "../Form/formData";
 
@@ -5,8 +7,6 @@ export const saveCsv = (items, nameFile, type) => {
 	const fileTitle = nameFile;
 	const replacer = (key, value) => (value === null ? "" : value);
 	const header = Object.keys(items[0]);
-	const headerOK = ["id (required)"];
-	const headerForErrors = ["error", "idDB", "firstNameDB", "id (required)"];
 	const whichHeader =
 		nameFile !== "errorsLog"
 			? ["id (required)"]
@@ -31,13 +31,11 @@ export const saveCsv = (items, nameFile, type) => {
 	});
 	let csv = [];
 	if (type === "header") {
-		csv = [
-			whichHeader.join(","), // header row first
-		].join("\r\n");
+		csv = [whichHeader.join(",")].join("\r\n");
 	}
 	if (type === "full") {
 		csv = [
-			whichHeader.join(","), // header row first
+			whichHeader.join(","),
 			...items.map((row) =>
 				header.map((fieldName) => JSON.stringify(row[fieldName], replacer)).join(","),
 			),
@@ -61,25 +59,17 @@ export const saveCsv = (items, nameFile, type) => {
 			document.body.removeChild(link);
 		}
 	}
-
-	console.log(csv);
 };
 
-const toCsv = (setResult, type) => {
-	readUser("hola")
+const toCsv = (type) => {
+	readUser()
 		.then((data) => {
 			if (!data.error) {
-				setResult(data.data);
-				console.log("Todo ok");
-				console.log(JSON.stringify(data.data));
-				saveCsv(data.data, "users", type);
-			} else {
-				console.log("Error");
+				return saveCsv(data.data, "users", type);
 			}
+			return console.log(`Error: ${JSON.stringify(data.error)}`);
 		})
-		.catch((error) => {
-			console.log(`Error en ${error}`);
-		});
+		.catch((error) => console.log(`Error: ${error}`));
 };
 
 export default toCsv;

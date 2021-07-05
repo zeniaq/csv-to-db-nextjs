@@ -16,6 +16,7 @@ import {
 	TableCaption,
 	Box,
 } from "@chakra-ui/react";
+import PropTypes from "prop-types";
 import { saveCsv } from "../csv/toCsv";
 
 const DataMap = ({ wrongData }) =>
@@ -75,5 +76,33 @@ const VerticallyCenter = ({ isOpen, onClose, wrongData }) => (
 		</Modal>
 	</>
 );
+
+VerticallyCenter.propTypes = {
+	isOpen: PropTypes.bool,
+	onClose: PropTypes.func,
+	wrongData: PropTypes.arrayOf(PropTypes.object),
+};
+
+VerticallyCenter.defaultProps = {
+	isOpen: false,
+	onClose: null,
+	wrongData: [],
+};
+
+Tab.propTypes = {
+	wrongData: PropTypes.arrayOf(PropTypes.object),
+};
+
+Tab.defaultProps = {
+	wrongData: [],
+};
+
+DataMap.propTypes = {
+	wrongData: PropTypes.arrayOf(PropTypes.object),
+};
+
+DataMap.defaultProps = {
+	wrongData: [],
+};
 
 export default VerticallyCenter;
